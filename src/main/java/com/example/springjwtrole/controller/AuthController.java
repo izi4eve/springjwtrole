@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 
 import java.security.Principal;
@@ -50,7 +51,11 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String showLoginForm(@RequestParam(value = "error", required = false) String error, Model model) {
+    public String showLoginForm(@RequestParam(value = "error", required = false) String error, Model model, Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            return "redirect:/account";
+        }
+
         if (error != null) {
             model.addAttribute("loginError", "Неправильный email или пароль.");
         }
