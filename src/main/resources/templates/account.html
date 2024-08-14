@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Аккаунт</title>
+</head>
+<body>
+<h1>Аккаунт</h1>
+<p>Email: <span th:text="${user.email}"></span></p>
+<p>Роль: <span th:text="${user.role}"></span></p>
+<a href="/logout">Выйти</a>
+</body>
+</html>
