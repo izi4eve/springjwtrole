@@ -9,6 +9,7 @@
     <input type="email" name="username" placeholder="Email" required/>
     <input type="password" name="password" placeholder="Пароль" required/>
     <button type="submit">Войти</button>
+    <p th:if="${loginError}" th:text="${loginError}" style="color: red;"></p>
 </form>
 </body>
 </html>

@@ -11,8 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.validation.Valid;
 
 import java.security.Principal;
@@ -35,32 +34,35 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@Valid @ModelAttribute("user") User user, BindingResult result) {
+    public String registerUser(@Valid @ModelAttribute("user") User user, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "register";
         }
+
+        if (userService.findByEmail(user.getEmail()).isPresent()) {
+            model.addAttribute("emailError", "Пользователь с таким email уже зарегистрирован.");
+            return "register";
+        }
+
         user.setRole(Role.REGISTERED);
         userService.save(user);
         return "redirect:/login";
     }
 
     @GetMapping("/login")
-    public String showLoginForm(Model model) {
+    public String showLoginForm(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("loginError", "Неправильный email или пароль.");
+        }
         return "login";
     }
 
     @GetMapping("/account")
     public String account(Model model, Principal principal) {
-        // Получаем email пользователя из Principal
         String email = principal.getName();
-
-        // Находим пользователя в базе данных
         User user = userService.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-        // Добавляем данные пользователя в модель
         model.addAttribute("user", user);
-
         return "account";
     }
 

@@ -45,13 +45,14 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/account")
+                        .failureUrl("/login?error=true") // Обработка ошибки логина
                         .permitAll()
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
                         .permitAll()
-                ); // Обновленный вызов для отключения CSRF защиты
+                );
 
         return http.build();
     }
