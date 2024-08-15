@@ -3,12 +3,17 @@ package com.example.springjwtrole.service;
 import com.example.springjwtrole.model.ConfirmationToken;
 import com.example.springjwtrole.model.User;
 import com.example.springjwtrole.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Optional;
 
@@ -35,7 +40,18 @@ public class UserService {
     }
 
     private void sendConfirmationEmail(String email, String token) {
-        String domain = "http://localhost:8080";  // Заменить на динамическое получение хоста
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String serverName = request.getServerName();
+        String scheme = request.getScheme();
+        int serverPort = request.getServerPort();
+
+        String domain;
+        if (serverName.equals("localhost")) {
+            domain = scheme + "://" + serverName + ":" + serverPort;
+        } else {
+            domain = scheme + "://" + serverName;
+        }
+
         String confirmationUrl = domain + "/confirm?token=" + token;
 
         SimpleMailMessage message = new SimpleMailMessage();
