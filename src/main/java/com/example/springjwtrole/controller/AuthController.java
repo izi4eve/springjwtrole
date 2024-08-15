@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -35,7 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@Valid @ModelAttribute("user") User user, BindingResult result, Model model) {
+    public String registerUser(@Valid @ModelAttribute("user") User user, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             return "register";
         }
@@ -47,6 +49,8 @@ public class AuthController {
 
         user.setRole(Role.REGISTERED);
         userService.save(user);
+
+        redirectAttributes.addFlashAttribute("registrationSuccess", "Спасибо за регистрацию! Проверьте свою почту для подтверждения.");
         return "redirect:/login";
     }
 
@@ -57,7 +61,13 @@ public class AuthController {
         }
 
         if (error != null) {
-            model.addAttribute("loginError", "Неправильный email или пароль.");
+            String email = (String) model.asMap().get("username");
+            Optional<User> user = userService.findByEmail(email);
+            if (user.isPresent() && !user.get().isEnabled()) {
+                model.addAttribute("loginError", "Вы ещё не подтвердили свою почту.");
+            } else {
+                model.addAttribute("loginError", "Неправильный email, пароль или вы ещё не подтвердили свой аккаунт по почте.");
+            }
         }
         return "login";
     }
@@ -75,4 +85,20 @@ public class AuthController {
     public String logout() {
         return "redirect:/"; // Логика для выхода из системы уже настроена в SecurityConfig
     }
+
+    @GetMapping("/confirm")
+    public String confirmUser(@RequestParam("token") String token, Model model) {
+        try {
+            userService.confirmUser(token);
+            model.addAttribute("confirmationMessage", "Почта успешно подтверждена. Теперь вы можете войти в свой аккаунт.");
+            return "login";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("confirmationMessage", "Неверный токен.");
+            return "login";
+        } catch (IllegalStateException e) {
+            model.addAttribute("confirmationMessage", "Аккаунт уже подтвержден.");
+            return "login";
+        }
+    }
+
 }
