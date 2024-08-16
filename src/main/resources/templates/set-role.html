@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Изменение роли пользователя</title>
+</head>
+<body>
+<h1>Изменение роли пользователя</h1>
+
+<form th:action="@{/admin/set-role}" method="post">
+    <input type="email" placeholder="email" name="email" required />
+    <select id="role" name="role" required>
+        <option th:each="role : ${roles}" th:value="${role.name()}" th:text="${role.name()}"></option>
+    </select>
+    <button type="submit">Сохранить</button>
+</form>
+
+<p th:if="${message}" th:text="${message}" style="color: green;"></p>
+<p th:if="${error}" th:text="${error}" style="color: red;"></p>
+
+</body>
+</html>

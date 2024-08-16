@@ -25,6 +25,7 @@ public class UserService {
     private final ConfirmationTokenService tokenService;
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
+    private final UserCleanupService userCleanupService;
 
     @Transactional
     public User save(User user) {
@@ -72,4 +73,9 @@ public class UserService {
         userRepository.save(user);
         tokenService.deleteToken(confirmationToken);
     }
+
+    public void cleanupUnconfirmedUsers() {
+        userCleanupService.removeUnconfirmedUsersManually();
+    }
+
 }

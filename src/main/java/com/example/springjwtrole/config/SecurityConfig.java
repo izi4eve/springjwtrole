@@ -41,12 +41,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/login", "/confirm", "/public/**").permitAll()
                         .requestMatchers("/account", "/logout").hasAnyRole("REGISTERED", "MODERATOR", "ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/account")
-                        .failureUrl("/login?error=true") // Обработка ошибки логина
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout

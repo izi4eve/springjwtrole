@@ -34,4 +34,7 @@ public class User {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private ConfirmationToken confirmationToken;
 }
