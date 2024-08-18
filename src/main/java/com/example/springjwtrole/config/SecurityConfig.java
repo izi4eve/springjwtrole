@@ -40,7 +40,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/register", "/login", "/confirm", "/forgot-password", "/reset-password", "/public/**").permitAll()
-                        .requestMatchers("/account", "/logout").hasAnyRole("REGISTERED", "MODERATOR", "ADMIN")
+                        .requestMatchers("/account/**", "/logout").hasAnyRole("REGISTERED", "MODERATOR", "ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

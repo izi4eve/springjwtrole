@@ -3,7 +3,10 @@ package com.example.springjwtrole.controller;
 import com.example.springjwtrole.model.Role;
 import com.example.springjwtrole.model.User;
 import com.example.springjwtrole.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -151,6 +154,22 @@ public class AuthController {
             model.addAttribute("error", "Неверный или истёкший токен.");
             return "reset-password";
         }
+    }
+
+    @GetMapping("/account/delete")
+    public String showDeleteAccountPage() {
+        return "delete-account";
+    }
+
+    @PostMapping("/account/delete")
+    public String deleteAccount(Principal principal, HttpServletRequest request, HttpServletResponse response) {
+        String email = principal.getName();
+        userService.deleteUserByEmail(email);
+
+        SecurityContextHolder.getContext().setAuthentication(null);
+        request.getSession().invalidate();
+
+        return "redirect:/login?accountDeleted";
     }
 
 }

@@ -108,4 +108,9 @@ public class UserService {
         message.setText(text);
         mailSender.send(message);
     }
+
+    @Transactional
+    public void deleteUserByEmail(String email) {
+        userRepository.findByEmail(email).ifPresent(userRepository::delete);
+    }
 }
