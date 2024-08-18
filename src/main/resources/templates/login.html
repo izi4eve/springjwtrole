@@ -13,5 +13,8 @@
     <p th:if="${registrationSuccess}" th:text="${registrationSuccess}" style="color: green;"></p>
     <p th:if="${loginError}" th:text="${loginError}" style="color: red;"></p>
 </form>
+
+<p><a th:href="@{/forgot-password}">Забыли пароль?</a></p>
+
 </body>
 </html>

@@ -101,4 +101,56 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/forgot-password")
+    public String showForgotPasswordForm() {
+        return "forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String handleForgotPassword(@RequestParam("email") String email, Model model) {
+        Optional<User> userOptional = userService.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            userService.sendPasswordResetEmail(userOptional.get());
+            model.addAttribute("message", "Письмо с инструкциями по восстановлению пароля отправлено на вашу почту.");
+        } else {
+            model.addAttribute("error", "Пользователь с таким email не найден.");
+        }
+
+        return "forgot-password";
+    }
+
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(@RequestParam("token") String token, Model model) {
+        if (!userService.isPasswordResetTokenValid(token)) {
+            model.addAttribute("error", "Неверный или истёкший токен.");
+            return "forgot-password";
+        }
+        model.addAttribute("token", token);
+        return "reset-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String handleResetPassword(
+            @RequestParam("token") String token,
+            @RequestParam("password") String password,
+            @RequestParam("confirmPassword") String confirmPassword,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("error", "Пароли не совпадают.");
+            return "reset-password";
+        }
+
+        try {
+            userService.resetPassword(token, password);
+            redirectAttributes.addFlashAttribute("message", "Пароль успешно изменён.");
+            return "redirect:/login";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", "Неверный или истёкший токен.");
+            return "reset-password";
+        }
+    }
+
 }

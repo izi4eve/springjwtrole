@@ -11,5 +11,8 @@
     <button type="submit">Зарегистрироваться</button>
     <p th:if="${emailError}" th:text="${emailError}" style="color: red;"></p>
 </form>
+
+<p><a th:href="@{/forgot-password}">Забыли пароль?</a></p>
+
 </body>
 </html>

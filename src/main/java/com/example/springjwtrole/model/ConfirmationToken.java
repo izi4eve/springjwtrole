@@ -2,11 +2,14 @@ package com.example.springjwtrole.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "confirmation_tokens")
 @Data
+@NoArgsConstructor
 public class ConfirmationToken {
 
     @Id
@@ -22,7 +25,14 @@ public class ConfirmationToken {
     @Column(nullable = false)
     private LocalDateTime expiresAt;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    public ConfirmationToken(String token, User user) {
+        this.token = token;
+        this.user = user;
+        this.createdAt = LocalDateTime.now();
+        this.expiresAt = LocalDateTime.now().plusHours(24); // Токен действует 24 часа
+    }
 }
