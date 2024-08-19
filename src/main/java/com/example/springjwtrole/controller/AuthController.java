@@ -1,13 +1,16 @@
 package com.example.springjwtrole.controller;
 
+import com.example.springjwtrole.dto.PasswordChangeForm;
 import com.example.springjwtrole.model.Role;
 import com.example.springjwtrole.model.User;
 import com.example.springjwtrole.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,7 +29,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/")
     public String home() {
@@ -170,6 +177,32 @@ public class AuthController {
         request.getSession().invalidate();
 
         return "redirect:/login?accountDeleted";
+    }
+
+    @GetMapping("/account/change-password")
+    public String showChangePasswordForm(Model model) {
+        model.addAttribute("passwordChangeForm", new PasswordChangeForm());
+        return "change-password";
+    }
+
+    @PostMapping("/account/change-password")
+    public String changePassword(PasswordChangeForm form, Authentication authentication, RedirectAttributes redirectAttributes) {
+        String username = authentication.getName();
+        User user = userService.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+
+        if (!passwordEncoder.matches(form.getCurrentPassword(), user.getPassword())) {
+            redirectAttributes.addFlashAttribute("error", "Current password is incorrect");
+            return "redirect:/account/change-password";
+        }
+        if (!form.getNewPassword().equals(form.getConfirmNewPassword())) {
+            redirectAttributes.addFlashAttribute("error", "New passwords do not match");
+            return "redirect:/account/change-password";
+        }
+
+        userService.updatePassword(username, form.getNewPassword());
+        redirectAttributes.addFlashAttribute("success", "Password successfully changed");
+        return "redirect:/account";
     }
 
 }
