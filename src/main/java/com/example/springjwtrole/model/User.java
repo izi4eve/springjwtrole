@@ -1,6 +1,7 @@
 package com.example.springjwtrole.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -17,7 +18,8 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
+    @Size(min = 6, message = "Пароль должен содержать как минимум 6 символов")
     private String password;
 
     @Enumerated(EnumType.STRING)
@@ -34,6 +36,9 @@ public class User {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    @Column(name = "provider", nullable = true)
+    private String provider; // "google", "facebook", etc.
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
     private ConfirmationToken confirmationToken;

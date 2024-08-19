@@ -6,11 +6,18 @@
 <body>
 <h1>Регистрация</h1>
 <form th:action="@{/register}" method="post">
+    <p th:if="${emailError}" th:text="${emailError}" style="color: red;"></p>
+    <p th:if="${error}" th:text="${error}" style="color: red;"></p>
+    <p th:if="${#fields.hasErrors('user.password')}" th:errors="*{user.password}" style="color: red;"></p>
+
     <input type="email" name="email" placeholder="Email" required/>
     <input type="password" name="password" placeholder="Пароль" required/>
     <button type="submit">Зарегистрироваться</button>
-    <p th:if="${emailError}" th:text="${emailError}" style="color: red;"></p>
 </form>
+
+<p>Или войдите через:</p>
+<a th:href="@{/oauth2/authorization/google}">Google</a>
+<a th:href="@{/oauth2/authorization/facebook}">Facebook</a>
 
 <p><a th:href="@{/forgot-password}">Забыли пароль?</a></p>
 

@@ -1,5 +1,7 @@
 package com.example.springjwtrole.config;
 
+import com.example.springjwtrole.repository.UserRepository;
+import com.example.springjwtrole.service.CustomOAuth2UserService;
 import com.example.springjwtrole.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +23,13 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
 
+    private final UserRepository userRepository;
+
+    @Bean
+    public CustomOAuth2UserService customOAuth2UserService() {
+        return new CustomOAuth2UserService(userRepository);
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -39,7 +48,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/register", "/login", "/confirm", "/forgot-password", "/reset-password", "/public/**").permitAll()
+                        .requestMatchers("/", "/register", "/login/**", "/oauth2/**", "/confirm", "/forgot-password", "/reset-password", "/public/**").permitAll()
                         .requestMatchers("/account/**", "/logout").hasAnyRole("REGISTERED", "MODERATOR", "ADMIN")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
@@ -49,6 +58,13 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/account")
                         .failureUrl("/login?error=true")
                         .permitAll()
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/account")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService())  // Правильная настройка сервиса для загрузки деталей пользователя
+                        )
                 )
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

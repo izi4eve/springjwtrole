@@ -5,14 +5,21 @@
 </head>
 <body>
 <h1>Логин</h1>
+
+<p th:if="${confirmationMessage}" th:text="${confirmationMessage}" style="color: green;"></p>
+<p th:if="${registrationSuccess}" th:text="${registrationSuccess}" style="color: green;"></p>
+<p th:if="${loginError}" th:text="${loginError}" style="color: red;"></p>
+<p th:if="${error}" th:text="${error}" style="color: red;"></p>
+
 <form th:action="@{/login}" method="post">
     <input type="email" name="username" placeholder="Email" required/>
     <input type="password" name="password" placeholder="Пароль" required/>
     <button type="submit">Войти</button>
-    <p th:if="${confirmationMessage}" th:text="${confirmationMessage}" style="color: green;"></p>
-    <p th:if="${registrationSuccess}" th:text="${registrationSuccess}" style="color: green;"></p>
-    <p th:if="${loginError}" th:text="${loginError}" style="color: red;"></p>
 </form>
+
+<p>Или войдите через:</p>
+<a th:href="@{/oauth2/authorization/google}">Google</a>
+<a th:href="@{/oauth2/authorization/facebook}">Facebook</a>
 
 <p><a th:href="@{/forgot-password}">Забыли пароль?</a></p>
 

@@ -1,6 +1,7 @@
 package com.example.springjwtrole.controller;
 
 import com.example.springjwtrole.dto.PasswordChangeForm;
+import com.example.springjwtrole.dto.PasswordResetForm;
 import com.example.springjwtrole.model.Role;
 import com.example.springjwtrole.model.User;
 import com.example.springjwtrole.service.UserService;
@@ -137,24 +138,28 @@ public class AuthController {
             return "forgot-password";
         }
         model.addAttribute("token", token);
+        model.addAttribute("passwordResetForm", new PasswordResetForm()); // добавляем форму в модель
         return "reset-password";
     }
 
     @PostMapping("/reset-password")
-    public String handleResetPassword(
-            @RequestParam("token") String token,
-            @RequestParam("password") String password,
-            @RequestParam("confirmPassword") String confirmPassword,
-            Model model,
-            RedirectAttributes redirectAttributes) {
+    public String handleResetPassword(@Valid @ModelAttribute("passwordResetForm") PasswordResetForm form,
+                                      BindingResult bindingResult,
+                                      @RequestParam("token") String token,
+                                      Model model,
+                                      RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("token", token);
+            return "reset-password";
+        }
 
-        if (!password.equals(confirmPassword)) {
+        if (!form.getPassword().equals(form.getConfirmPassword())) {
             model.addAttribute("error", "Пароли не совпадают.");
             return "reset-password";
         }
 
         try {
-            userService.resetPassword(token, password);
+            userService.resetPassword(token, form.getPassword());
             redirectAttributes.addFlashAttribute("message", "Пароль успешно изменён.");
             return "redirect:/login";
         } catch (IllegalArgumentException e) {
@@ -186,7 +191,11 @@ public class AuthController {
     }
 
     @PostMapping("/account/change-password")
-    public String changePassword(PasswordChangeForm form, Authentication authentication, RedirectAttributes redirectAttributes) {
+    public String changePassword(@Valid @ModelAttribute("passwordChangeForm") PasswordChangeForm form, BindingResult bindingResult, Authentication authentication, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "change-password"; // Вернёмся на страницу смены пароля, если есть ошибки
+        }
+
         String username = authentication.getName();
         User user = userService.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
