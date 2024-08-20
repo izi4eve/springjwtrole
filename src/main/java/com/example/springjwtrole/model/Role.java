@@ -3,7 +3,6 @@ package com.example.springjwtrole.model;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum Role implements GrantedAuthority {
-    UNREGISTERED,
     REGISTERED,
     MODERATOR,
     ADMIN,
