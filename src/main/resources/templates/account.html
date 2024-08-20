@@ -6,10 +6,15 @@
 <body>
 <h1>Аккаунт</h1>
 <p th:if="${success}" th:text="${success}" style="color: green;"></p>
+<p th:if="${message}" th:text="${message}" style="color: green;"></p>
+
 <p>Email: <span th:text="${user.email}"></span></p>
 <p>Роль: <span th:text="${user.role}"></span></p>
 <p><a href="/account/change-password">Change Password</a></p>
 <p><a href="/account/delete">Удалить аккаунт</a></p>
 <p><a href="/logout">Выйти</a></p>
+
+<div th:insert="~{fragments/admin-menu :: adminMenu}"></div>
+
 </body>
 </html>

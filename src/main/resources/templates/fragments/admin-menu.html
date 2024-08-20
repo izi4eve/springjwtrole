@@ -1,0 +1,5 @@
+<div th:fragment="adminMenu" sec:authorize="hasRole('ROLE_ADMIN')">
+    <h2>Административные функции</h2>
+    <p><a href="/admin/set-role">Изменить роль пользователя</a></p>
+    <p><a href="/admin/cleanup-users">Удалить не подтверждённые аккаунты</a></p>
+</div>
