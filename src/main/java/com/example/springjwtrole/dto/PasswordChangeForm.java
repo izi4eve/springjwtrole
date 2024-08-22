@@ -4,14 +4,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class PasswordChangeForm {
-    @NotBlank(message = "Текущий пароль не может быть пустым")
+    @NotBlank(message = "{currentPassword.notBlank}")
     private String currentPassword;
 
-    @NotBlank(message = "Новый пароль не может быть пустым")
-    @Size(min = 6, message = "Новый пароль должен содержать как минимум 6 символов")
+    @NotBlank(message = "{newPassword.notBlank}")
+    @Size(min = 6, message = "{password.size}")
     private String newPassword;
 
-    @NotBlank(message = "Подтверждение нового пароля не может быть пустым")
+    @NotBlank(message = "{confirmNewPassword.notBlank}")
     private String confirmNewPassword;
 
     public String getCurrentPassword() {

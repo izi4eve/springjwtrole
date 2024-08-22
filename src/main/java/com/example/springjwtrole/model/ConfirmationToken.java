@@ -33,6 +33,6 @@ public class ConfirmationToken {
         this.token = token;
         this.user = user;
         this.createdAt = LocalDateTime.now();
-        this.expiresAt = LocalDateTime.now().plusHours(24); // Токен действует 24 часа
+        this.expiresAt = LocalDateTime.now().plusHours(24); // token is valid for 24 hours
     }
 }

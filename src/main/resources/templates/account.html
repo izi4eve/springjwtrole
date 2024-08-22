@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Аккаунт</title>
+    <title th:text="#{account}" />
 </head>
 <body>
-<h1>Аккаунт</h1>
+<h1 th:text="#{account}" />
 <p th:if="${success}" th:text="${success}" style="color: green;"></p>
 <p th:if="${message}" th:text="${message}" style="color: green;"></p>
 
 <p>Email: <span th:text="${user.email}"></span></p>
-<p>Роль: <span th:text="${user.role}"></span></p>
-<p><a href="/account/change-password">Change Password</a></p>
-<p><a href="/account/delete">Удалить аккаунт</a></p>
-<p><a href="/logout">Выйти</a></p>
+<p><span  th:text="#{role}" /> <span th:text="${user.role}"></span></p>
+<p><a href="/account/change-password" th:text="#{changePassword}" /></p>
+<p><a href="/account/delete" th:text="#{accountDelete}" />
+<p><a href="/logout" th:text="#{logout}" /></p>
 
 <div th:insert="~{fragments/admin-menu :: adminMenu}"></div>
 

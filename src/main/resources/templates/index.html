@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Главная</title>
+    <title th:text="#{homePageTitle}" />
 </head>
 <body>
-<h1>Добро пожаловать!</h1>
-<a href="/register">Регистрация</a> | <a href="/login">Логин</a>
+<h1 th:text="#{homePageH1}" />
+<a href="/register" th:text="#{register}" /> | <a href="/login" th:text="#{login}" />
 </body>
 </html>

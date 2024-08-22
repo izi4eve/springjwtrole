@@ -17,14 +17,13 @@ public class UserCleanupService {
     private final UserRepository userRepository;
 
     @Transactional
-//    @Scheduled(cron = "0 0 * * * *")  // Запуск каждый час
-    @Scheduled(cron = "0 0 0 * * *")  // <<<<<<< Раз в день в 0 часов
-//    @Scheduled(cron = "0 0 3 * * *")  // Раз в день в 3 часа утра
-//    @Scheduled(cron = "0 0 0 * * MON")   // Раз в неделю в полночь понедельника
-//    @Scheduled(cron = "0 0 12 * * SUN")  // Раз в неделю в полдень воскресенья
+//    @Scheduled(cron = "0 0 * * * *")  // Run every hour
+    @Scheduled(cron = "0 0 0 * * *")  // <<<<<<< Once a day at 0:00
+//    @Scheduled(cron = "0 0 3 * * *")  // Once a day at 3 am
+//    @Scheduled(cron = "0 0 0 * * MON")   // Once a week at midnight on Monday
+//    @Scheduled(cron = "0 0 12 * * SUN")  // Once a week at noon on Sunday
     public void removeUnconfirmedUsers() {
         LocalDateTime threshold = LocalDateTime.now().minusHours(24);
-//        LocalDateTime threshold = LocalDateTime.now().minusHours(1);
         List<User> usersToDelete = userRepository.findByEnabledFalseAndCreatedAtBefore(threshold);
 
         for (User user : usersToDelete) {

@@ -34,9 +34,9 @@ public class AdminUserInitializer implements CommandLineRunner {
             admin.setRole(Role.ADMIN);
             admin.setEnabled(true);
             userRepository.save(admin);
-            System.out.println("Администратор создан с email: " + adminEmail);
+            System.out.println("Administrator created with email: " + adminEmail);
         } else {
-            System.out.println("Администратор уже существует с email: " + adminEmail);
+            System.out.println("Administrator already exists with email: " + adminEmail);
         }
     }
 }

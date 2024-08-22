@@ -3,6 +3,7 @@ package com.example.springjwtrole.service;
 import com.example.springjwtrole.model.ConfirmationToken;
 import com.example.springjwtrole.model.User;
 import com.example.springjwtrole.repository.UserRepository;
+import com.example.springjwtrole.util.MessageUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -26,13 +27,14 @@ public class UserService {
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
     private final UserCleanupService userCleanupService;
+    private final MessageUtil messageUtil;
 
     @Transactional
-    public User save(User user) {
+    public User save(User user, String lang) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user = userRepository.save(user);
         ConfirmationToken token = tokenService.createToken(user);
-        sendConfirmationEmail(user.getEmail(), token.getToken());
+        sendConfirmationEmail(user.getEmail(), token.getToken(), lang);
         return user;
     }
 
@@ -40,23 +42,28 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public void updatePassword(String email, String newPassword) {
-        User user = findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    public void updatePassword(String email, String newPassword, String lang) {
+        User user = findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(
+                messageUtil.getMessage("emailNotFound", lang)
+                        + " " + email));
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 
-    private void sendConfirmationEmail(String email, String token) {
+    private void sendConfirmationEmail(String email, String token, String lang) {
         String confirmationUrl = buildUrl("/confirm?token=" + token);
-        sendEmail(email, "Подтверждение регистрации", "Перейдите по следующей ссылке для подтверждения регистрации: " + confirmationUrl);
+        sendEmail(email,
+                messageUtil.getMessage("registrationConfirm", lang),
+                messageUtil.getMessage("followLinkForRegistration", lang)
+                        + " " + confirmationUrl);
     }
 
     @Transactional
-    public void confirmUser(String token) {
-        ConfirmationToken confirmationToken = tokenService.validateToken(token);
+    public void confirmUser(String token, String lang) {
+        ConfirmationToken confirmationToken = tokenService.validateToken(token, lang);
         User user = confirmationToken.getUser();
         if (user.isEnabled()) {
-            throw new IllegalStateException("Аккаунт уже подтвержден.");
+            throw new IllegalStateException(messageUtil.getMessage("accountAlreadyConfirmed", lang));
         }
         user.setEnabled(true);
         userRepository.save(user);
@@ -67,24 +74,27 @@ public class UserService {
         userCleanupService.removeUnconfirmedUsersManually();
     }
 
-    public void sendPasswordResetEmail(User user) {
+    public void sendPasswordResetEmail(User user, String lang) {
         String token = UUID.randomUUID().toString();
         savePasswordResetToken(user, token);
         String resetUrl = buildUrl("/reset-password?token=" + token);
-        sendEmail(user.getEmail(), "Сброс пароля", "Перейдите по следующей ссылке для сброса пароля: " + resetUrl);
+        sendEmail(user.getEmail(),
+                messageUtil.getMessage("passwordReset", lang),
+                messageUtil.getMessage("followLinkForPasswordReset", lang)
+                        + " " + resetUrl);
     }
 
     @Transactional
-    public void resetPassword(String token, String newPassword) {
-        ConfirmationToken confirmationToken = tokenService.validateToken(token);
+    public void resetPassword(String token, String newPassword, String lang) {
+        ConfirmationToken confirmationToken = tokenService.validateToken(token, lang);
         User user = confirmationToken.getUser();
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
         tokenService.deleteToken(confirmationToken);
     }
 
-    public boolean isPasswordResetTokenValid(String token) {
-        return tokenService.validateToken(token) != null;
+    public boolean isPasswordResetTokenValid(String token, String lang) {
+        return tokenService.validateToken(token, lang) != null;
     }
 
     private void savePasswordResetToken(User user, String token) {

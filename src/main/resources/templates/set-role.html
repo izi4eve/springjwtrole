@@ -2,17 +2,17 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Изменение роли пользователя</title>
+    <title th:text="#{changeUserRole}" />
 </head>
 <body>
-<h1>Изменение роли пользователя</h1>
+<h1 th:text="#{changeUserRole}" />
 
 <form th:action="@{/admin/set-role}" method="post">
-    <input type="email" placeholder="email" name="email" required />
+    <input type="email" placeholder="Email" name="email" required />
     <select id="role" name="role" required>
         <option th:each="role : ${roles}" th:value="${role.name()}" th:text="${role.name()}"></option>
     </select>
-    <button type="submit">Сохранить</button>
+    <button type="submit" th:text="#{save}" />
 </form>
 
 <p th:if="${message}" th:text="${message}" style="color: green;"></p>

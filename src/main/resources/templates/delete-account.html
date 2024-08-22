@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Удаление аккаунта</title>
+    <title th:text="#{accountDelete}" />
 </head>
 <body>
-<h1>Вы уверены, что хотите удалить аккаунт?</h1>
+<h1 th:text="#{sureToAccountDelete}" />
 <form th:action="@{/account/delete}" method="post">
-    <button type="submit">Да, удалить</button>
-    <a href="/account"><button type="button">Нет, не надо</button></a>
+    <button type="submit" th:text="#{yesDelete}" />
+    <a href="/account"><button type="button" th:text="#{noDontDelete}" /></a>
 </form>
 </body>
 </html>

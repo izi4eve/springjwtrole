@@ -4,11 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public class PasswordResetForm {
-    @NotBlank(message = "Пароль не может быть пустым")
-    @Size(min = 6, message = "Пароль должен содержать как минимум 6 символов")
+    @NotBlank(message = "{password.notBlank}")
+    @Size(min = 6, message = "{password.size}")
     private String password;
 
-    @NotBlank(message = "Подтверждение пароля не может быть пустым")
+    @NotBlank(message = "{confirmedPassword.notBlank}")
     private String confirmPassword;
 
     public String getPassword() {

@@ -1,0 +1,55 @@
+spring.application.name=********
+
+# Languages <a href="?lang=de">DE</a> | <a href="?lang=en">EN</a>
+spring.mvc.locale=de
+spring.mvc.locale-resolver=fixed
+
+# Super User
+superuser.email=********
+superuser.password=********
+
+# PostgreSQL Database Configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/********db
+spring.datasource.username=********
+spring.datasource.password=********
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.open-in-view=false
+
+# Session - P48H, P30D
+server.servlet.session.timeout=P365D
+
+# Mail Configuration
+spring.mail.host=********
+spring.mail.port=587
+spring.mail.username=********
+spring.mail.password=********
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.debug=true
+
+# Google
+spring.security.oauth2.client.registration.google.client-id=********
+spring.security.oauth2.client.registration.google.client-secret=********
+spring.security.oauth2.client.registration.google.scope=profile,email
+spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
+spring.security.oauth2.client.registration.google.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.google.client-name=Google
+
+# Facebook
+spring.security.oauth2.client.registration.facebook.client-id=********
+spring.security.oauth2.client.registration.facebook.client-secret=********
+spring.security.oauth2.client.registration.facebook.scope=email,public_profile
+spring.security.oauth2.client.registration.facebook.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
+spring.security.oauth2.client.registration.facebook.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.facebook.client-name=Facebook
+
+# Logging Configuration
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+logging.level.org.springframework.web=DEBUG
+logging.level.org.springframework.mail=DEBUG
+logging.level.org.springframework.security=DEBUG
+logging.level.root=INFO
+
+spring.thymeleaf.cache=false

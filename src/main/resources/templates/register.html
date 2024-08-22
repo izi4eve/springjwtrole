@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Регистрация</title>
+    <title th:text="#{register}" />
 </head>
 <body>
-<h1>Регистрация</h1>
+<h1 th:text="#{register}" />
 <form th:action="@{/register}" method="post">
     <p th:if="${emailError}" th:text="${emailError}" style="color: red;"></p>
     <p th:if="${error}" th:text="${error}" style="color: red;"></p>
@@ -12,14 +12,14 @@
 
     <input type="email" name="email" placeholder="Email" required/>
     <input type="password" name="password" placeholder="Пароль" required/>
-    <button type="submit">Зарегистрироваться</button>
+    <button type="submit" th:text="#{register}" />
 </form>
 
-<p>Или войдите через:</p>
-<a th:href="@{/oauth2/authorization/google}">Google</a>
-<a th:href="@{/oauth2/authorization/facebook}">Facebook</a>
-
-<p><a th:href="@{/forgot-password}">Забыли пароль?</a></p>
+<p><span th:text="#{orLoginWithGoogleFacebook}" />
+    <a th:href="@{/oauth2/authorization/google}">Google</a> |
+    <a th:href="@{/oauth2/authorization/facebook}">Facebook</a>
+</p>
+<p><a th:href="@{/forgot-password}" th:text="#{passwordForgot}" /></p>
 
 </body>
 </html>

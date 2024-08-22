@@ -10,6 +10,6 @@ public enum Role implements GrantedAuthority {
 
     @Override
     public String getAuthority() {
-        return "ROLE_" + name(); // Используем префикс "ROLE_" для соответствия требованиям Spring Security
+        return "ROLE_" + name(); // Use the "ROLE_" prefix to comply with Spring Security requirements
     }
 }

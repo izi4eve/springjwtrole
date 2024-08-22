@@ -19,7 +19,7 @@ public class User {
     private String email;
 
     @Column(nullable = true)
-    @Size(min = 6, message = "Пароль должен содержать как минимум 6 символов")
+    @Size(min = 6, message = "{password.size}")
     private String password;
 
     @Enumerated(EnumType.STRING)

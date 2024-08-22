@@ -5,6 +5,7 @@ import com.example.springjwtrole.dto.PasswordResetForm;
 import com.example.springjwtrole.model.Role;
 import com.example.springjwtrole.model.User;
 import com.example.springjwtrole.service.UserService;
+import com.example.springjwtrole.util.MessageUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,9 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private MessageUtil messageUtil;
+
     @GetMapping("/")
     public String home() {
         return "index";
@@ -48,25 +52,29 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(@Valid @ModelAttribute("user") User user, BindingResult result, Model model, RedirectAttributes redirectAttributes) {
+    public String registerUser(@Valid @ModelAttribute("user") User user, BindingResult result, Model model, RedirectAttributes redirectAttributes,
+                               @RequestParam(name = "lang", required = false) String lang) {
         if (result.hasErrors()) {
             return "register";
         }
 
         if (userService.findByEmail(user.getEmail()).isPresent()) {
-            model.addAttribute("emailError", "Пользователь с таким email уже зарегистрирован.");
+            model.addAttribute("emailError",
+                    messageUtil.getMessage("isSuchEmail", lang));
             return "register";
         }
 
         user.setRole(Role.REGISTERED);
-        userService.save(user);
+        userService.save(user, lang);
 
-        redirectAttributes.addFlashAttribute("registrationSuccess", "Спасибо за регистрацию! Проверьте свою почту для подтверждения.");
+        redirectAttributes.addFlashAttribute("registrationSuccess",
+                messageUtil.getMessage("thanksForRegisterCheckYourEmail", lang));
         return "redirect:/login";
     }
 
     @GetMapping("/login")
-    public String showLoginForm(@RequestParam(value = "error", required = false) String error, Model model, Authentication authentication) {
+    public String showLoginForm(@RequestParam(value = "error", required = false) String error, Model model, Authentication authentication,
+                                @RequestParam(name = "lang", required = false) String lang) {
         if (authentication != null && authentication.isAuthenticated()) {
             return "redirect:/account";
         }
@@ -75,39 +83,47 @@ public class AuthController {
             String email = (String) model.asMap().get("username");
             Optional<User> user = userService.findByEmail(email);
             if (user.isPresent() && !user.get().isEnabled()) {
-                model.addAttribute("loginError", "Вы ещё не подтвердили свою почту.");
+                model.addAttribute("loginError",
+                        messageUtil.getMessage("emailIsNotConfirmed", lang));
             } else {
-                model.addAttribute("loginError", "Неправильный email, пароль или вы ещё не подтвердили свой аккаунт по почте.");
+                model.addAttribute("loginError",
+                        messageUtil.getMessage("loginError", lang));
             }
         }
         return "login";
     }
 
     @GetMapping("/account")
-    public String account(Model model, Principal principal) {
+    public String account(Model model, Principal principal,
+                          @RequestParam(name = "lang", required = false) String lang) {
         String email = principal.getName();
         User user = userService.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        messageUtil.getMessage("emailNotFound", lang) + " " + email));
         model.addAttribute("user", user);
         return "account";
     }
 
     @GetMapping("/logout")
     public String logout() {
-        return "redirect:/"; // Логика для выхода из системы уже настроена в SecurityConfig
+        return "redirect:/"; // Login for logout is already configured in SecurityConfig
     }
 
     @GetMapping("/confirm")
-    public String confirmUser(@RequestParam("token") String token, Model model) {
+    public String confirmUser(@RequestParam("token") String token, Model model,
+                              @RequestParam(name = "lang", required = false) String lang) {
         try {
-            userService.confirmUser(token);
-            model.addAttribute("confirmationMessage", "Почта успешно подтверждена. Теперь вы можете войти в свой аккаунт.");
+            userService.confirmUser(token, lang);
+            model.addAttribute("confirmationMessage",
+                    messageUtil.getMessage("emailConfirmed", lang));
             return "login";
         } catch (IllegalArgumentException e) {
-            model.addAttribute("confirmationMessage", "Неверный токен.");
+            model.addAttribute("confirmationMessage",
+                    messageUtil.getMessage("tokenIsWrong", lang));
             return "login";
         } catch (IllegalStateException e) {
-            model.addAttribute("confirmationMessage", "Аккаунт уже подтвержден.");
+            model.addAttribute("confirmationMessage",
+                    messageUtil.getMessage("accountAlreadyConfirmed", lang));
             return "login";
         }
     }
@@ -118,27 +134,32 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public String handleForgotPassword(@RequestParam("email") String email, Model model) {
+    public String handleForgotPassword(@RequestParam("email") String email, Model model,
+                                       @RequestParam(name = "lang", required = false) String lang) {
         Optional<User> userOptional = userService.findByEmail(email);
 
         if (userOptional.isPresent()) {
-            userService.sendPasswordResetEmail(userOptional.get());
-            model.addAttribute("message", "Письмо с инструкциями по восстановлению пароля отправлено на вашу почту.");
+            userService.sendPasswordResetEmail(userOptional.get(), lang);
+            model.addAttribute("message",
+                    messageUtil.getMessage("recoveryEmailIsSend", lang));
         } else {
-            model.addAttribute("error", "Пользователь с таким email не найден.");
+            model.addAttribute("error",
+                    messageUtil.getMessage("userNotFound", lang));
         }
 
         return "forgot-password";
     }
 
     @GetMapping("/reset-password")
-    public String showResetPasswordForm(@RequestParam("token") String token, Model model) {
-        if (!userService.isPasswordResetTokenValid(token)) {
-            model.addAttribute("error", "Неверный или истёкший токен.");
+    public String showResetPasswordForm(@RequestParam("token") String token, Model model,
+                                        @RequestParam(name = "lang", required = false) String lang) {
+        if (!userService.isPasswordResetTokenValid(token, lang)) {
+            model.addAttribute("error",
+                    messageUtil.getMessage("oldOrWrongToken", lang));
             return "forgot-password";
         }
         model.addAttribute("token", token);
-        model.addAttribute("passwordResetForm", new PasswordResetForm()); // добавляем форму в модель
+        model.addAttribute("passwordResetForm", new PasswordResetForm()); // add a form to the model
         return "reset-password";
     }
 
@@ -147,23 +168,27 @@ public class AuthController {
                                       BindingResult bindingResult,
                                       @RequestParam("token") String token,
                                       Model model,
-                                      RedirectAttributes redirectAttributes) {
+                                      RedirectAttributes redirectAttributes,
+                                      @RequestParam(name = "lang", required = false) String lang) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("token", token);
             return "reset-password";
         }
 
         if (!form.getPassword().equals(form.getConfirmPassword())) {
-            model.addAttribute("error", "Пароли не совпадают.");
+            model.addAttribute("error",
+                    messageUtil.getMessage("passwordsNotMatch", lang));
             return "reset-password";
         }
 
         try {
-            userService.resetPassword(token, form.getPassword());
-            redirectAttributes.addFlashAttribute("message", "Пароль успешно изменён.");
+            userService.resetPassword(token, form.getPassword(), lang);
+            redirectAttributes.addFlashAttribute("message",
+                    messageUtil.getMessage("passwordChangedSuccess", lang));
             return "redirect:/login";
         } catch (IllegalArgumentException e) {
-            model.addAttribute("error", "Неверный или истёкший токен.");
+            model.addAttribute("error",
+                    messageUtil.getMessage("oldOrWrongToken", lang));
             return "reset-password";
         }
     }
@@ -191,26 +216,30 @@ public class AuthController {
     }
 
     @PostMapping("/account/change-password")
-    public String changePassword(@Valid @ModelAttribute("passwordChangeForm") PasswordChangeForm form, BindingResult bindingResult, Authentication authentication, RedirectAttributes redirectAttributes) {
+    public String changePassword(@Valid @ModelAttribute("passwordChangeForm") PasswordChangeForm form, BindingResult bindingResult, Authentication authentication, RedirectAttributes redirectAttributes,
+                                 @RequestParam(name = "lang", required = false) String lang) {
         if (bindingResult.hasErrors()) {
-            return "change-password"; // Вернёмся на страницу смены пароля, если есть ошибки
+            return "change-password"; // go back to the password change page if there are errors
         }
 
         String username = authentication.getName();
         User user = userService.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException(messageUtil.getMessage("emailNotFound", lang) + " " + username));
 
         if (!passwordEncoder.matches(form.getCurrentPassword(), user.getPassword())) {
-            redirectAttributes.addFlashAttribute("error", "Current password is incorrect");
+            redirectAttributes.addFlashAttribute("error",
+                    messageUtil.getMessage("incorrectCurrentPassword", lang));
             return "redirect:/account/change-password";
         }
         if (!form.getNewPassword().equals(form.getConfirmNewPassword())) {
-            redirectAttributes.addFlashAttribute("error", "New passwords do not match");
+            redirectAttributes.addFlashAttribute("error",
+                    messageUtil.getMessage("newPasswordsNotMatch", lang));
             return "redirect:/account/change-password";
         }
 
-        userService.updatePassword(username, form.getNewPassword());
-        redirectAttributes.addFlashAttribute("success", "Password successfully changed");
+        userService.updatePassword(username, form.getNewPassword(), lang);
+        redirectAttributes.addFlashAttribute("success",
+                messageUtil.getMessage("passwordChangedSuccess", lang));
         return "redirect:/account";
     }
 
