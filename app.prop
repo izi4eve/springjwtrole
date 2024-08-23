@@ -3,6 +3,7 @@ spring.application.name=********
 # Languages <a href="?lang=de">DE</a> | <a href="?lang=en">EN</a>
 spring.mvc.locale=de
 spring.mvc.locale-resolver=fixed
+spring.messages.encoding=UTF-8
 
 # Super User
 superuser.email=********
