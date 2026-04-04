@@ -39,34 +39,21 @@ This is not a tutorial sample but a **production‑ready boilerplate** with real
 
 If you already have **Homebrew**, run:
 
-```bash
-# Java version manager (lets you switch multiple versions per project)
-brew install sdkman
-
-# Or install SDKMAN manually:
-curl -s "https://get.sdkman.io" | bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-
+```zsh
 # Install Java 21 (LTS)
-sdk install java 21.0.3-tem
+brew install openjdk@21
+echo 'export PATH="/opt/homebrew/opt/openjdk@21/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
 
 # Verify installation
 java -version
 ```
 
-**Why SDKMAN?**  
-It allows you to keep multiple Java versions on the same machine and switch between them with  
-`sdk use java <version>`. Essential when working on several projects.
-
 ***
 
 ### 2. Install IntelliJ IDEA
 
-```bash
-brew install --cask intellij-idea-ce
-```
-
-Or download manually: [https://www.jetbrains.com/idea/download](https://www.jetbrains.com/idea/download)  
+Download manually: [https://www.jetbrains.com/idea/download](https://www.jetbrains.com/idea/download)  
 (Community Edition — free)
 
 ***
