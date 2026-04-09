@@ -72,6 +72,7 @@ psql postgres
 CREATE DATABASE springjwtrole;
 CREATE USER springuser WITH PASSWORD 'yourpassword';
 GRANT ALL PRIVILEGES ON DATABASE springjwtrole TO springuser;
+GRANT ALL ON SCHEMA public TO springuser;
 \q
 ```
 
@@ -121,9 +122,6 @@ spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIE
 # OAuth2 — Facebook
 spring.security.oauth2.client.registration.facebook.client-id=YOUR_FACEBOOK_APP_ID
 spring.security.oauth2.client.registration.facebook.client-secret=YOUR_FACEBOOK_APP_SECRET
-
-# Superuser
-app.superuser.email=admin@yourdomain.com
 
 # Domain for email links
 app.domain=http://localhost:8080
@@ -178,14 +176,61 @@ git push origin master
 
 ***
 
-## Get Google OAuth2 Credentials
+## OAuth2 Login Setup
 
-1. Visit [https://console.cloud.google.com](https://console.cloud.google.com)  
-2. Create a new project → *API & Services* → *Credentials* → *Create Credentials* → *OAuth Client ID*  
-3. Application type: **Web application**  
-4. Authorized redirect URIs:  
-   `http://localhost:8080/login/oauth2/code/google`  
-5. Copy your **Client ID** and **Client Secret** into `application.properties`
+### Google Sign-in
+
+1. Open [Google Cloud Console](https://console.cloud.google.com/).
+2. Select or create a project.
+3. Navigate to **APIs & Services → Credentials**.
+4. Click **Create Credentials → OAuth 2.0 Client ID**.
+5. Choose **Application Type: Web application**.
+6. Under **Authorized redirect URIs**, add: http://localhost:8080/login/oauth2/code/google
+7. Copy the generated **Client ID** and **Client Secret** into your `application.properties`:
+
+```properties
+spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID
+spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET
+```
+
+> **Note:** For production, replace `localhost` with your actual domain and add the corresponding redirect URI.
+
+### Facebook Login
+
+1. Go to [Facebook Developer Portal → My Apps](https://developers.facebook.com/apps/).
+2. Click **Create App** → **Business** → **Website** (or choose an existing app).
+3. In the left menu, go to **Settings → Basic**.
+4. Copy:
+    - **App ID** to `spring.security.oauth2.client.registration.facebook.client-id`
+    - **App Secret** (click **Show** if needed) to `spring.security.oauth2.client.registration.facebook.client-secret`
+5. In the **Facebook Login → Settings** section, add the redirect URI: http://localhost:8080/login/oauth2/code/facebook
+6. Save changes.
+
+**Optional note in README (up to you):**
+
+> **Note:** Facebook OAuth2 does not require additional payment, but you must comply with Facebook’s app review and usage policies. For most simple projects, this is free.
+
+### Apple Sign in (iCloud)
+
+1. Join the [Apple Developer Program](https://developer.apple.com/programs/) (paid membership required, ~$99/year).
+2. Open **App Store Connect** → **Certificates, Identifiers & Profiles** → **Identifiers** → **App IDs**.
+3. Register a new **App ID** and enable **Sign in with Apple**.
+4. Next, create a **Service ID** with **Sign in with Apple** enabled.
+5. Generate a **Private Key** (.p8 file) and store it securely (it is used to construct the JWT‑based `client-secret`).
+6. Your `client-id` is the **Service ID**.
+7. Configure your `application.properties` as follows:
+
+```properties
+spring.security.oauth2.client.registration.apple.client-id=YOUR_APPLE_SERVICE_ID
+spring.security.oauth2.client.registration.apple.client-secret=YOUR_APPLE_CLIENT_SECRET_FROM_JWT
+spring.security.oauth2.client.registration.apple.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
+spring.security.oauth2.client.registration.apple.scope=openid,email
+spring.security.oauth2.client.provider.apple.authorization-uri=https://appleid.apple.com/auth/authorize
+spring.security.oauth2.client.provider.apple.token-uri=https://appleid.apple.com/auth/token
+spring.security.oauth2.client.provider.apple.user-name-attribute=sub
+```
+
+> **Note:** Apple Sign in requires a paid Apple Developer account and is optional. Skip this section if you only want to test Google/Facebook OAuth2 locally.
 
 ***
 
