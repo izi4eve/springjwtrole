@@ -1,17 +1,17 @@
-spring.application.name=********
+spring.application.name=springjwtrole
 
 # Languages <a href="?lang=de">DE</a> | <a href="?lang=en">EN</a>
-spring.mvc.locale=de
+spring.mvc.locale=en
 spring.mvc.locale-resolver=fixed
 
 # Super User
-superuser.email=********
-superuser.password=********
+superuser.email=_______your-email-for-login_______
+superuser.password=_______your-pass-for-login_______
 
 # PostgreSQL Database Configuration
-spring.datasource.url=jdbc:postgresql://localhost:5432/********db
-spring.datasource.username=********
-spring.datasource.password=********
+spring.datasource.url=jdbc:postgresql://localhost:5432/_______your-db-name_______
+spring.datasource.username=_______your-db-username_______
+spring.datasource.password=_______your-db-user-password_______
 spring.datasource.driver-class-name=org.postgresql.Driver
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.open-in-view=false
@@ -19,26 +19,34 @@ spring.jpa.open-in-view=false
 # Session - P48H, P30D
 server.servlet.session.timeout=P365D
 
+# JWT
+app.jwt.secret=_______your-JWT-secret_______    # openssl rand -base64 32
+app.jwt.expiration-ms=900000
+app.jwt.refresh-expiration-ms=604800000
+
+# CORS для React
+app.cors.origins=http://localhost:5173
+
 # Mail Configuration
-spring.mail.host=********
+spring.mail.host=_______smtp-server-for-emails_______
 spring.mail.port=587
-spring.mail.username=********
-spring.mail.password=********
+spring.mail.username=_______your-user-email_______
+spring.mail.password=_______your-email-password_______
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 spring.mail.properties.mail.debug=true
 
 # Google
-spring.security.oauth2.client.registration.google.client-id=********
-spring.security.oauth2.client.registration.google.client-secret=********
+spring.security.oauth2.client.registration.google.client-id=_______your-google-oauth2-id_______
+spring.security.oauth2.client.registration.google.client-secret=_______your-google-oauth2-secret_______
 spring.security.oauth2.client.registration.google.scope=profile,email
 spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
 spring.security.oauth2.client.registration.google.authorization-grant-type=authorization_code
 spring.security.oauth2.client.registration.google.client-name=Google
 
 # Facebook
-spring.security.oauth2.client.registration.facebook.client-id=********
-spring.security.oauth2.client.registration.facebook.client-secret=********
+spring.security.oauth2.client.registration.facebook.client-id=_______your-facebook-oauth2-id_______
+spring.security.oauth2.client.registration.facebook.client-secret=_______your-facebook-oauth2-secret_______
 spring.security.oauth2.client.registration.facebook.scope=email,public_profile
 spring.security.oauth2.client.registration.facebook.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
 spring.security.oauth2.client.registration.facebook.authorization-grant-type=authorization_code
