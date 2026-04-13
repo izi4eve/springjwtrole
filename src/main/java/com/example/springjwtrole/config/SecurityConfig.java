@@ -26,6 +26,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.List;
 
 import java.io.IOException;
 
@@ -36,6 +40,20 @@ public class SecurityConfig {
 
     private final UserRepository userRepository;
     private final JwtAuthFilter jwtAuthFilter;
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        return source -> {
+            UrlBasedCorsConfigurationSource s = new UrlBasedCorsConfigurationSource();
+            s.registerCorsConfiguration("/api/**", config);
+            return s.getCorsConfiguration(source);
+        };
+    }
 
     @Bean
     public CustomOAuth2UserService customOAuth2UserService() {
@@ -52,13 +70,12 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // ── ЦЕПОЧКА 1: JWT для /api/** (React, мобильные клиенты) ────────────────
-    // Stateless: без сессий. Авторизация только через Bearer токен в заголовке.
     @Bean
     @Order(1)
     public SecurityFilterChain apiSecurityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**")
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -73,8 +90,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ── ЦЕПОЧКА 2: Session для Thymeleaf (все остальные пути) ─────────────────
-    // Оригинальная конфигурация — работает как раньше.
     @Bean
     @Order(2)
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
